@@ -97,6 +97,7 @@ const server = http.createServer(async (req, res) => {
     res.end(
       JSON.stringify({
         status: 'healthy',
+        version: 'v1.0.1',
         gitSha: config.gitSha,
         uptime: Math.round(process.uptime()),
         timestamp: new Date().toISOString(),

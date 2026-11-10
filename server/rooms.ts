@@ -33,15 +33,16 @@ export interface RoomEvents {
 export class Room extends EventEmitter {
   readonly id: string;
   readonly players: Map<EntityId | number, Player>;
-  readonly logger: MatchLogStream;
+  readonly logger: MatchLogStream | null;
   readonly match: Match;
 
   constructor(id: string) {
     super();
     this.id = id;
     this.players = new Map();
-    this.logger = createMatchLogStream(id);
-    this.logger.pipeToFile();
+    // In production, file logging is disabled (Pino handles stdout logging).
+    this.logger = process.env['NODE_ENV'] === 'production' ? null : createMatchLogStream(id);
+    this.logger?.pipeToFile();
     this.match = new Match(this);
   }
 }
@@ -62,18 +63,18 @@ class RoomManager {
     this.rooms.set(id, room);
 
     logger.info({ roomId: id, activeRooms: this.rooms.size }, 'room.created');
-    room.logger.write({ event: 'room_created', roomId: id });
+    room.logger?.write({ event: 'room_created', roomId: id });
 
     room.on('join', (player: Player) => {
       logger.info({ roomId: id, playerId: player.id, name: player.name }, 'player.joined');
-      room.logger.write({ event: 'player_joined', player: player.name });
+      room.logger?.write({ event: 'player_joined', player: player.name });
     });
 
     room.once('empty', () => {
       room.match.stop();
       logger.info({ roomId: id }, 'room.destroyed');
-      room.logger.write({ event: 'room_empty_destroyed' });
-      room.logger.close();
+      room.logger?.write({ event: 'room_empty_destroyed' });
+      room.logger?.close();
       this.rooms.delete(id);
     });
 
