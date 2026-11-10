@@ -1,5 +1,5 @@
-import { connection } from './connection.ts';
 import { fetchJson } from './assets/loader.ts';
+import { connection } from './connection.ts';
 
 export interface RoomListItem {
   id: string;
@@ -17,6 +17,13 @@ export class Lobby extends EventTarget {
     this.container = containerElement || document.getElementById('room-list') || document.querySelector('.lobby');
   }
 
+  private getPlayerName(): string {
+    const input = document.getElementById('player-name-input') as HTMLInputElement | null;
+    const val = input?.value.trim();
+    if (val) return val;
+    return `Пілот_${Math.floor(100 + Math.random() * 900)}`;
+  }
+
   async refresh(): Promise<void> {
     try {
       const rooms = await fetchJson<RoomListItem[]>('/api/rooms');
@@ -30,7 +37,8 @@ export class Lobby extends EventTarget {
     if (!this.container) return;
 
     if (rooms.length === 0) {
-      this.container.innerHTML = '<p>Немає активних кімнат. Створіть нову!</p>';
+      this.container.innerHTML =
+        '<div class="empty-rooms">Наразі немає активних секторів.<br/>Створіть нову кімнату нижче!</div>';
       return;
     }
 
@@ -39,10 +47,31 @@ export class Lobby extends EventTarget {
     rooms.forEach((room) => {
       const button = document.createElement('button');
       button.className = 'room-button';
-      button.textContent = `Увійти: ${room.name} (${room.players} гравців)`;
+      button.type = 'button';
+
+      const info = document.createElement('div');
+      info.className = 'room-button-info';
+
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'room-button-name';
+      nameSpan.textContent = `🪐 ${room.name}`;
+
+      const playersSpan = document.createElement('span');
+      playersSpan.className = 'room-button-players';
+      playersSpan.textContent = `👥 ${room.players}/8`;
+
+      info.appendChild(nameSpan);
+      info.appendChild(playersSpan);
+
+      const actionSpan = document.createElement('span');
+      actionSpan.className = 'room-button-action';
+      actionSpan.textContent = 'Увійти →';
+
+      button.appendChild(info);
+      button.appendChild(actionSpan);
 
       button.onclick = (): void => {
-        const playerName = prompt("Введіть ваше ім'я:", 'Гравець') || 'Anonymous';
+        const playerName = this.getPlayerName();
 
         connection.send({
           type: 'join',
@@ -66,7 +95,9 @@ export class Lobby extends EventTarget {
   }
 
   start(): void {
-    if (this.container) this.container.innerHTML = '<p>Завантаження кімнат...</p>';
+    if (this.container) {
+      this.container.innerHTML = '<div class="empty-rooms">Сканування секторів...</div>';
+    }
     this.refresh();
     this.pollInterval = window.setInterval(() => this.refresh(), 2000);
   }

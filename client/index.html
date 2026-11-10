@@ -1,82 +1,88 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dogfight Online - Space Arena</title>
+    <title>Космічна Арена — Dogfight Online</title>
     <meta name="description" content="Multiplayer 2D space dogfight arena game" />
     <meta name="theme-color" content="#0ea5e9" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" type="image/png" href="/ship.png" />
-    <style>
-      body { margin: 0; overflow: hidden; background-color: #111; font-family: monospace; }
-      #hud { position: absolute; top: 10px; left: 10px; color: white; font-family: monospace; z-index: 10; }
-      #roster { position: absolute; top: 10px; right: 20px; color: #a3e635; font-size: 14px; background: rgba(0,0,0,0.6); padding: 8px 12px; border-radius: 4px; z-index: 20; }
-      #chat-box { position: absolute; bottom: 15px; left: 15px; width: 320px; z-index: 20; }
-      #chat-messages { height: 110px; overflow-y: auto; background: rgba(0,0,0,0.65); color: #fff; padding: 6px 8px; font-size: 12px; border-radius: 4px; margin-bottom: 5px; }
-      #chat-messages .chat-line { margin-bottom: 3px; word-break: break-word; }
-      #chat-form { display: flex; }
-      #chat-input { flex: 1; padding: 6px 8px; background: #222; border: 1px solid #555; color: white; border-radius: 3px; font-family: monospace; }
-      #chat-send { margin-left: 4px; background: #3b82f6; color: white; border: none; padding: 6px 12px; cursor: pointer; border-radius: 3px; font-family: monospace; font-weight: bold; }
-      #reconnect-banner {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        background: #dc2626;
-        color: white;
-        text-align: center;
-        padding: 8px;
-        font-size: 13px;
-        font-weight: bold;
-        z-index: 100;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.5);
-      }
-      #return-lobby-btn {
-        margin-left: 10px;
-        background: #fff;
-        color: #dc2626;
-        border: none;
-        padding: 3px 8px;
-        border-radius: 3px;
-        cursor: pointer;
-        font-family: monospace;
-        font-weight: bold;
-      }
-    </style>
   </head>
   <body>
     <div id="reconnect-banner">
       <span id="reconnect-text">⚠️ Зв'язок із сервером втрачено. Повторне підключення...</span>
-      <button id="return-lobby-btn" onclick="window.location.href='/'">В лобі</button>
+      <button id="return-lobby-btn" onclick="window.location.href='/'">На головну</button>
     </div>
 
     <canvas id="gameCanvas"></canvas>
-    
+
     <div id="hud"></div>
-    <div id="roster">Гравці: завантаження...</div>
-    <button id="add-bots-btn" style="position: absolute; top: 48px; right: 20px; background: #e11d48; color: white; border: none; padding: 7px 14px; border-radius: 4px; font-family: monospace; font-size: 13px; font-weight: bold; cursor: pointer; z-index: 20; box-shadow: 0 2px 5px rgba(0,0,0,0.4);">🤖 Додати 8 ботів</button>
+
+    <div id="top-right-panel">
+      <div id="roster">🛸 Пілоти в секторі: завантаження...</div>
+      <div class="top-right-actions">
+        <button id="add-bots-btn" type="button">🤖 +8 Ботів</button>
+        <button id="leave-room-btn" type="button" onclick="window.location.href='/'">🚪 В лобі</button>
+      </div>
+    </div>
 
     <div id="chat-box">
       <div id="chat-messages"></div>
       <form id="chat-form">
-        <input id="chat-input" type="text" placeholder="Повідомлення в чат..." />
+        <input id="chat-input" type="text" placeholder="Повідомлення в ефір..." autocomplete="off" />
         <button id="chat-send" type="submit">Надіслати</button>
       </form>
     </div>
 
-    <div id="lobby-ui" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #222; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 30;">
-      <h1>Космічна Арена</h1>
-      <h2>Виберіть або створіть кімнату:</h2>
-      <div id="room-list">Завантаження кімнат...</div>
+    <div id="lobby-ui">
+      <div class="lobby-card">
+        <div class="lobby-header">
+          <div class="lobby-badge">⚡ ONLINE MULTIPLAYER ARENA</div>
+          <h1>КОСМІЧНА АРЕНА</h1>
+          <p class="lobby-subtitle">2D мультиплеєрний космічний бій у реальному часі</p>
+        </div>
+
+        <div class="lobby-field">
+          <label for="player-name-input">👨‍🚀 Позивний пілота</label>
+          <input id="player-name-input" type="text" placeholder="Введіть ваше ім'я..." maxlength="24" autocomplete="off" />
+        </div>
+
+        <div class="lobby-section">
+          <div class="section-title">
+            <span>🌌 Активні сектори (кімнати)</span>
+            <span class="live-dot" title="Автооновлення кожні 2с">● LIVE</span>
+          </div>
+          <div id="room-list">Завантаження кімнат...</div>
+        </div>
+
+        <div class="lobby-divider"><span>АБО СТВОРІТЬ ВЛАСНИЙ СЕКТОР</span></div>
+
+        <div class="create-room-group">
+          <input id="room-name-input" type="text" placeholder="Назва кімнати (напр. alpha_1)" maxlength="32" autocomplete="off" />
+          <button id="create-room-btn" type="button">🚀 Створити кімнату</button>
+        </div>
+        <div id="lobby-error" class="lobby-error" style="display: none;"></div>
+
+        <div class="controls-hint">
+          <span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> або <kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd> — політ</span>
+          <span><kbd>Пробіл</kbd> — вогонь</span>
+        </div>
+      </div>
     </div>
 
     <script type="module" src="/src/main.ts"></script>
     <script>
+      if ('caches' in window) {
+        caches.keys().then((keys) => {
+          keys.forEach((key) => {
+            if (key !== 'dogfight-v3') caches.delete(key);
+          });
+        }).catch(() => {});
+      }
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js').catch(() => {});
+          navigator.serviceWorker.register('/sw.js').then((reg) => reg.update()).catch(() => {});
         });
       }
     </script>

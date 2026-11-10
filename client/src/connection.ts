@@ -124,7 +124,7 @@ export class Connection {
   }
 
   sendRaw(data: string | ArrayBuffer | Uint8Array): void {
-    if (this.isConnected && this.socket) {
+    if (this.isConnected && this.socket && this.socket.readyState === WebSocket.OPEN) {
       sendToSocket(this.socket, data);
       this.onTraffic?.('out', typeof data === 'string' ? data.length : data.byteLength);
     } else {

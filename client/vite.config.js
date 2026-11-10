@@ -5,6 +5,15 @@ export default defineConfig({
     __GIT_SHA__: JSON.stringify(process.env.GIT_SHA || process.env.GITHUB_SHA || 'v1.0.0-ship'),
     __APP_VERSION__: JSON.stringify('v1.0.0'),
   },
+  build: {
+    rollupOptions: {
+      output: {
+        entryFileNames: 'assets/index.js',
+        chunkFileNames: 'assets/[name].js',
+        assetFileNames: 'assets/[name].[ext]',
+      },
+    },
+  },
   server: {
     proxy: {
       '/api': 'http://localhost:3000',

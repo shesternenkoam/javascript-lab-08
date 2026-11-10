@@ -120,14 +120,14 @@ export function setupWebSocket(server: Server): WebSocketServer {
     // Lab 4 rate limit: 40 max burst, 30 refill/sec
     const rateLimiter = new TokenBucket(40, 30, Date.now());
 
-    // Join timeout (10 seconds)
+    // Join timeout (5 minutes for lobby browsing)
     const joinTimeout = setTimeout(() => {
       if (!currentPlayer && socket.readyState === WebSocket.OPEN) {
         logger.warn({ ip: clientIp, reason: 'join_timeout' }, 'ws.rejected: join_timeout');
         rejectedConnectionsCounter.inc({ reason: 'join_timeout' });
         socket.close(1008, 'Join timeout');
       }
-    }, 10000);
+    }, 300000);
 
     const sendJson = (msg: { type: string; [key: string]: unknown }): void => {
       if (socket.readyState !== WebSocket.OPEN) return;

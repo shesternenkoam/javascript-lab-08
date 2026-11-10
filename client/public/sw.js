@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dogfight-v1.0.0';
+const CACHE_NAME = 'dogfight-v3';
 const ASSETS = [
   '/',
   '/index.html',
@@ -9,23 +9,32 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)).then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)).catch(() => {})
   );
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)))
-    ).then(() => self.clients.claim())
+    (async () => {
+      const keys = await caches.keys();
+      const oldKeys = keys.filter((key) => key !== CACHE_NAME);
+      await Promise.all(oldKeys.map((key) => caches.delete(key)));
+      await self.clients.claim();
+      if (oldKeys.length > 0) {
+        const windowClients = await self.clients.matchAll({ type: 'window' });
+        for (const client of windowClients) {
+          client.navigate(client.url).catch(() => {});
+        }
+      }
+    })()
   );
 });
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
-  // Do not intercept or cache WebSocket, API, health, or metrics requests
   if (
     url.pathname.startsWith('/api') ||
     url.pathname.startsWith('/ws') ||
@@ -35,13 +44,16 @@ self.addEventListener('fetch', (event) => {
   ) {
     return;
   }
+  // Network-first strategy: always serve fresh assets when online, fallback to cache only when offline
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      return (
-        cached ||
-        fetch(event.request).catch(() => caches.match('/index.html'))
-      );
-    })
+    fetch(event.request)
+      .then((response) => {
+        if (response && response.status === 200) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone)).catch(() => {});
+        }
+        return response;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
-

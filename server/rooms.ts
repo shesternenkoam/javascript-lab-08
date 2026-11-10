@@ -100,7 +100,7 @@ class RoomManager {
   closeAll(): void {
     for (const [id, room] of this.rooms.entries()) {
       room.match.stop();
-      room.logger.close();
+      room.logger?.close();
       this.rooms.delete(id);
     }
   }

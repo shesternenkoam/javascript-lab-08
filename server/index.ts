@@ -39,17 +39,30 @@ const MIME_TYPES: Record<string, string> = {
 function serveStaticFile(reqPath: string, method: string, res: http.ServerResponse): boolean {
   if (!fs.existsSync(clientDistDir)) return false;
 
-  let filePath = path.join(clientDistDir, reqPath === '/' ? 'index.html' : reqPath.replace(/^\//, ''));
+  const cleanRel = reqPath === '/' ? 'index.html' : reqPath.replace(/^\//, '');
+  let filePath = path.join(clientDistDir, cleanRel);
   if (!filePath.startsWith(clientDistDir)) return false; // Prevent directory traversal
 
   if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
     filePath = path.join(filePath, 'index.html');
   }
 
+  // Fallback for stale hashed bundle URLs cached by old Service Worker (e.g. /assets/index-DiodQQat.js -> /assets/index.js)
   if (!fs.existsSync(filePath)) {
-    // SPA fallback: return index.html for navigation routes
+    if (/^assets\/index-[a-zA-Z0-9_-]+\.js$/.test(cleanRel)) {
+      const fallbackJs = path.join(clientDistDir, 'assets', 'index.js');
+      if (fs.existsSync(fallbackJs)) filePath = fallbackJs;
+    } else if (/^assets\/index-[a-zA-Z0-9_-]+\.css$/.test(cleanRel)) {
+      const fallbackCss = path.join(clientDistDir, 'assets', 'index.css');
+      if (fs.existsSync(fallbackCss)) filePath = fallbackCss;
+    }
+  }
+
+  if (!fs.existsSync(filePath)) {
+    // Only return SPA index.html for extensionless navigation routes, never for missing .js/.css/.json assets
+    const hasExtension = path.extname(cleanRel) !== '';
     const spaIndex = path.join(clientDistDir, 'index.html');
-    if (!reqPath.startsWith('/api') && !reqPath.startsWith('/ws') && fs.existsSync(spaIndex)) {
+    if (!hasExtension && !reqPath.startsWith('/api') && !reqPath.startsWith('/ws') && fs.existsSync(spaIndex)) {
       filePath = spaIndex;
     } else {
       return false;
@@ -63,7 +76,7 @@ function serveStaticFile(reqPath: string, method: string, res: http.ServerRespon
     res.writeHead(200, {
       'Content-Type': contentType,
       'Content-Length': content.length,
-      'Cache-Control': ext === '.html' ? 'no-cache' : 'public, max-age=31536000, immutable',
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
     });
     if (method === 'HEAD') {
       res.end();
