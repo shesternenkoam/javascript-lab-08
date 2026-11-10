@@ -65,13 +65,23 @@ class RoomManager {
     logger.info({ roomId: id, activeRooms: this.rooms.size }, 'room.created');
     room.logger?.write({ event: 'room_created', roomId: id });
 
+    const idleCreateTimer = setTimeout(() => {
+      const hasHumans = [...room.players.values()].some((p) => !p.isBot);
+      if (!hasHumans && this.rooms.has(id)) {
+        room.emit('empty');
+      }
+    }, 30000);
+
     room.on('join', (player: Player) => {
+      clearTimeout(idleCreateTimer);
       logger.info({ roomId: id, playerId: player.id, name: player.name }, 'player.joined');
       room.logger?.write({ event: 'player_joined', player: player.name });
     });
 
     room.once('empty', () => {
+      clearTimeout(idleCreateTimer);
       room.match.stop();
+      room.players.clear();
       logger.info({ roomId: id }, 'room.destroyed');
       room.logger?.write({ event: 'room_empty_destroyed' });
       room.logger?.close();

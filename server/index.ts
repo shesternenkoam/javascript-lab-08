@@ -226,10 +226,20 @@ const server = http.createServer(async (req, res) => {
     req.on('end', () => {
       try {
         const parsed = z
-          .object({ count: z.number().int().positive().default(8) })
-          .safeParse(body ? JSON.parse(body) : { count: 8 });
-        const count = parsed.success ? parsed.data.count : 8;
-        const room = roomManager.get(roomId) ?? roomManager.create(roomId);
+          .object({ count: z.number().int().positive().default(1) })
+          .safeParse(body ? JSON.parse(body) : { count: 1 });
+        const count = parsed.success ? parsed.data.count : 1;
+        const room = roomManager.get(roomId);
+        if (!room) {
+          res.writeHead(404, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Room not found' }));
+          return;
+        }
+        if (room.players.size >= config.maxPlayersPerRoom) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: `Room full (max ${config.maxPlayersPerRoom} players)` }));
+          return;
+        }
         const added = room.match.addBots(count);
         const playersList = [...room.players.values()].map((p) => ({
           id: p.id,
@@ -240,7 +250,7 @@ const server = http.createServer(async (req, res) => {
           p.sendJson({ type: 'players', players: playersList });
         }
         res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ success: true, added: added.length, total: room.match.world.ships.length }));
+        res.end(JSON.stringify({ success: true, added: added.length, total: room.players.size }));
       } catch (_err: unknown) {
         res.writeHead(400, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: 'Failed to add bots' }));

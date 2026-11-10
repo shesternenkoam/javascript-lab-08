@@ -360,7 +360,8 @@ export function setupWebSocket(server: Server): WebSocketServer {
       if (currentRoom && currentPlayer) {
         currentRoom.match.removePlayer(currentPlayer);
         broadcastPlayers();
-        if (currentRoom.players.size === 0) {
+        const hasHumans = [...currentRoom.players.values()].some((p) => !p.isBot);
+        if (!hasHumans) {
           currentRoom.emit('empty');
         }
       }

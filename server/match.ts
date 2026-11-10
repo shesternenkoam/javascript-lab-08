@@ -6,6 +6,7 @@ import {
 } from 'shared';
 import type { Room, Player } from './rooms.ts';
 import { Bot } from './bot.ts';
+import { config } from './config.ts';
 import { tickDurationHistogram } from './metrics.ts';
 
 const OVERRUN_RESYNC_TICKS = 5;
@@ -59,8 +60,11 @@ export class Match {
 
   addBots(count: number): Bot[] {
     const bots: Bot[] = [];
-    for (let i = 0; i < count; i++) {
-      const bot = new Bot(`Bot_${i + 1}`);
+    const availableSlots = Math.max(0, config.maxPlayersPerRoom - this.players.size);
+    const toSpawn = Math.min(count, availableSlots);
+    const existingBots = [...this.players.values()].filter((p) => p.isBot).length;
+    for (let i = 0; i < toSpawn; i++) {
+      const bot = new Bot(`Bot_${existingBots + i + 1}`);
       this.addPlayer(bot);
       bots.push(bot);
     }

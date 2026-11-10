@@ -126,13 +126,21 @@ addBotsBtn?.addEventListener('click', async () => {
   addBotsBtn.disabled = true;
   addBotsBtn.textContent = '⏳ Додаємо...';
   try {
-    await fetch(`/api/rooms/${encodeURIComponent(activeRoom)}/bots`, {
+    const res = await fetch(`/api/rooms/${encodeURIComponent(activeRoom)}/bots`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ count: 8 }),
+      body: JSON.stringify({ count: 1 }),
     });
-    addBotsBtn.textContent = '🤖 +8 Ботів';
-  } finally {
+    const data = (await res.json().catch(() => ({}))) as { total?: number; error?: string };
+    if (!res.ok || (data.total !== undefined && data.total >= 8)) {
+      addBotsBtn.textContent = '🤖 Макс. (8/8)';
+      addBotsBtn.disabled = true;
+      return;
+    }
+    addBotsBtn.textContent = '🤖 +1 Бот';
+    addBotsBtn.disabled = false;
+  } catch {
+    addBotsBtn.textContent = '🤖 +1 Бот';
     addBotsBtn.disabled = false;
   }
 });

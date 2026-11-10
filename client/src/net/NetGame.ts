@@ -89,7 +89,17 @@ export class NetGame {
       this.players = new Map(m.players.map((p) => [p.id, p.name]));
       const rosterEl = document.getElementById('roster');
       if (rosterEl) {
-        rosterEl.textContent = 'Players: ' + m.players.map((p) => p.name).join(', ');
+        rosterEl.textContent = `🛸 Пілоти (${m.players.length}/8): ` + m.players.map((p) => p.name).join(', ');
+      }
+      const botsBtn = document.getElementById('add-bots-btn') as HTMLButtonElement | null;
+      if (botsBtn) {
+        if (m.players.length >= 8) {
+          botsBtn.disabled = true;
+          botsBtn.textContent = '🤖 Макс. (8/8)';
+        } else {
+          botsBtn.disabled = false;
+          botsBtn.textContent = '🤖 +1 Бот';
+        }
       }
     });
     connection.on('chat', (m) => {

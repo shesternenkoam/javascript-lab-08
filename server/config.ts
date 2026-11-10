@@ -12,8 +12,8 @@ export const ServerConfigSchema = z.object({
       return val.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
     }),
   maxConnectionsPerIp: z.coerce.number().int().positive().default(10),
-  maxRooms: z.coerce.number().int().positive().default(50),
-  maxPlayersPerRoom: z.coerce.number().int().positive().default(10),
+  maxRooms: z.coerce.number().int().positive().default(10),
+  maxPlayersPerRoom: z.coerce.number().int().positive().default(8),
   logLevel: z.enum(['trace', 'debug', 'info', 'warn', 'error', 'fatal']).default('info'),
   gitSha: z.string().default(process.env['GIT_SHA'] || process.env['GITHUB_SHA'] || 'dev'),
 });

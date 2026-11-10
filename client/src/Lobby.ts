@@ -34,6 +34,11 @@ export class Lobby extends EventTarget {
   }
 
   render(rooms: RoomListItem[]): void {
+    const badge = document.getElementById('room-count-badge');
+    if (badge) {
+      badge.textContent = `🌌 Активні сектори (${rooms.length}/10)`;
+    }
+
     if (!this.container) return;
 
     if (rooms.length === 0) {
@@ -45,9 +50,11 @@ export class Lobby extends EventTarget {
     this.container.innerHTML = '';
 
     rooms.forEach((room) => {
+      const isFull = room.players >= 8;
       const button = document.createElement('button');
       button.className = 'room-button';
       button.type = 'button';
+      button.disabled = isFull;
 
       const info = document.createElement('div');
       info.className = 'room-button-info';
@@ -65,30 +72,32 @@ export class Lobby extends EventTarget {
 
       const actionSpan = document.createElement('span');
       actionSpan.className = 'room-button-action';
-      actionSpan.textContent = 'Увійти →';
+      actionSpan.textContent = isFull ? '🔒 Повна' : 'Увійти →';
 
       button.appendChild(info);
       button.appendChild(actionSpan);
 
-      button.onclick = (): void => {
-        const playerName = this.getPlayerName();
+      if (!isFull) {
+        button.onclick = (): void => {
+          const playerName = this.getPlayerName();
 
-        connection.send({
-          type: 'join',
-          room: room.id,
-          name: playerName,
-        });
+          connection.send({
+            type: 'join',
+            room: room.id,
+            name: playerName,
+          });
 
-        console.log(`Відправлено запит на вхід у ${room.name} як ${playerName}`);
-        this.stop();
+          console.log(`Відправлено запит на вхід у ${room.name} як ${playerName}`);
+          this.stop();
 
-        this.onJoin?.({ room: room.id, name: playerName });
-        this.dispatchEvent(
-          new CustomEvent('join', {
-            detail: { room: room.id, name: playerName },
-          }),
-        );
-      };
+          this.onJoin?.({ room: room.id, name: playerName });
+          this.dispatchEvent(
+            new CustomEvent('join', {
+              detail: { room: room.id, name: playerName },
+            }),
+          );
+        };
+      }
 
       this.container?.appendChild(button);
     });
