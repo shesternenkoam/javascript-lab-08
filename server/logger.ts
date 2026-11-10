@@ -17,3 +17,4 @@ export function getRoomLogger(roomId: string, playerId?: string | number) {
     ...(playerId !== undefined ? { playerId: String(playerId) } : {}),
   });
 }
+

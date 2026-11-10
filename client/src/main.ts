@@ -134,16 +134,36 @@ function initLobby(): void {
   const uiContainer = document.getElementById('lobby-ui');
 
   const createButton = document.createElement('button');
-  createButton.textContent = 'Створити кімнату';
+  createButton.id = 'create-room-btn';
+  createButton.textContent = '✨ Створити нову кімнату';
   createButton.onclick = async (): Promise<void> => {
-    const name = prompt('Назва кімнати:', `room_${Math.floor(Math.random() * 1000)}`);
-    if (!name) return;
-    await fetch('/api/rooms', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name }),
-    });
-    lobby.refresh();
+    const roomName = prompt('Назва кімнати:', `room_${Math.floor(Math.random() * 1000)}`);
+    if (!roomName) return;
+    const playerName = prompt("Введіть ваше ім'я:", 'Гравець') || `Player_${Math.floor(Math.random() * 1000)}`;
+
+    try {
+      const res = await fetch('/api/rooms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: roomName }),
+      });
+      if (!res.ok) {
+        const errData = (await res.json().catch(() => ({}))) as { error?: string };
+        alert(`Не вдалося створити кімнату: ${errData.error || res.statusText}`);
+        return;
+      }
+
+      // Auto-join the newly created room
+      connection.send({
+        type: 'join',
+        room: roomName,
+        name: playerName,
+      });
+      lobby.stop();
+      lobby.onJoin?.({ room: roomName, name: playerName });
+    } catch (err: unknown) {
+      alert(`Помилка мережі: ${err instanceof Error ? err.message : String(err)}`);
+    }
   };
   uiContainer?.appendChild(createButton);
 

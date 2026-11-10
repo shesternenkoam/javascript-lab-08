@@ -55,11 +55,16 @@ export interface MatchLogStream {
 
 export function createMatchLogStream(roomName: string): MatchLogStream {
   const logDir = './logs';
-  if (!fs.existsSync(logDir)) {
-    fs.mkdirSync(logDir, { recursive: true });
+  let writableStream: fs.WriteStream | null = null;
+  try {
+    if (!fs.existsSync(logDir)) {
+      fs.mkdirSync(logDir, { recursive: true });
+    }
+    writableStream = fs.createWriteStream(`${logDir}/${roomName}.ndjson`, { flags: 'a' });
+  } catch (_e) {
+    // Graceful fallback if filesystem is read-only or running without write access in container
   }
 
-  const writableStream = fs.createWriteStream(`${logDir}/${roomName}.ndjson`, { flags: 'a' });
   const transformStream = new MatchLogTransform();
 
   return {
@@ -67,12 +72,16 @@ export function createMatchLogStream(roomName: string): MatchLogStream {
       transformStream.write(eventData);
     },
     pipeToFile(): void {
-      pipeline(transformStream, writableStream, (err) => {
-        if (err) console.error('Помилка стрімінгу логів:', err.message);
-      });
+      if (writableStream) {
+        pipeline(transformStream, writableStream, (err) => {
+          if (err) console.error('Помилка стрімінгу логів:', err.message);
+        });
+      }
     },
     close(): void {
-      transformStream.end();
+      try {
+        transformStream.end();
+      } catch (_e) {}
     },
   };
 }

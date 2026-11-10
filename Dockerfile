@@ -53,6 +53,9 @@ COPY --from=builder /app/client/dist ./client/dist
 COPY --from=builder /app/server/dist ./server/dist
 COPY --from=builder /app/shared/src ./shared/src
 
+# Create logs directory and ensure node user has ownership
+RUN mkdir -p /app/logs && chown -R node:node /app
+
 # Run as non-root user for security
 USER node
 
@@ -64,3 +67,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
 
 # Exec-form CMD so signals (SIGTERM, SIGINT) pass directly to Node
 CMD ["node", "server/dist/index.js"]
+
