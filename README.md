@@ -1,18 +1,7 @@
 # Dogfight Online — Space Arena 🚀
 
-[![CI / CD Pipeline](https://github.com/shesternenkoam/javascript-lab-08/actions/workflows/ci.yml/badge.svg)](https://github.com/shesternenkoam/javascript-lab-08/actions/workflows/ci.yml)
-[![Docker Image Size](https://img.shields.io/badge/docker%20image-142%20MB-blue?logo=docker)](Dockerfile)
-[![Release](https://img.shields.io/badge/release-v1.0.0-green.svg)](https://github.com/shesternenkoam/javascript-lab-08/releases)
-[![Node Version](https://img.shields.io/badge/node-%3E%3D22.0.0-brightgreen?logo=node.js)](package.json)
-[![Coverage](https://img.shields.io/badge/coverage-95.1%25-brightgreen)](server/test/)
-[![PWA Ready](https://img.shields.io/badge/PWA-installable-orange?logo=pwa)](client/public/manifest.webmanifest)
 
-> **Випускний проєкт курсу «JavaScript — Створюємо мультиплеєрну гру» (Лабораторна робота №8 — Ship It).**  
-> Повноцінна 2D мультиплеєрна космічна арена реального часу, написана на чистому TypeScript/Node.js, розгорнута в Docker-контейнері з підтримкою WebSockets (`wss://`), структурованим логуванням Pino, метриками Prometheus, PWA та захистом від перевантажень і зловживань.
-
----
-
-## 🎮 Демо та Жива Адреса
+## Демо та Жива Адреса
 
 - **Публічна адреса:** [https://javascript-lab-08-production.up.railway.app](https://javascript-lab-08-production.up.railway.app) *(або локально `http://localhost:3000`)*
 - **WebSocket адреса:** `wss://javascript-lab-08-production.up.railway.app/ws` *(збереження з'єднання крізь проксі завдяки heartbeat)*
@@ -24,7 +13,7 @@
 
 ---
 
-## 🕹️ Як грати
+## Як грати
 
 1. Відкрийте гру за адресою у браузері на комп'ютері або встановіть як застосунок на телефон (PWA).
 2. Створіть кімнату або оберіть існуючу в списку лобі.
@@ -36,12 +25,12 @@
    - `N` — увімкнути/вимкнути розширений діагностичний netgraph.
    - `P` — перемикання прогнозування на стороні клієнта (Client-Side Prediction).
    - `B` — перемикання кодека (Binary Bit-Packing $\leftrightarrow$ JSON).
-   - Кнопка **«🤖 Додати 8 ботів»** — миттєво підключає серверні AI-боти для бою.
+   - Кнопка **«🤖 Додати бота»** — миттєво підключає серверні AI-боти для бою.
    - Чат у лівому нижньому кутку дозволяє обмінюватися повідомленнями з іншими гравцями в кімнаті.
 
 ---
 
-## 🏗️ Архітектура системи
+## Архітектура системи
 
 ```mermaid
 flowchart TD
@@ -100,7 +89,7 @@ WebSocket-з'єднання є **довготривалими та станам�
 
 ---
 
-## 🛡️ Надійність, безпека та операційна поведінка (M1 & M2)
+##  Надійність, безпека та операційна поведінка 
 
 ### 1. Коректне завершення роботи (Graceful Shutdown)
 - При отриманні сигналів `SIGTERM` або `SIGINT` процес:
@@ -149,7 +138,7 @@ WebSocket-з'єднання є **довготривалими та станам�
 
 ---
 
-## 🐳 Docker та CI/CD Pipeline (M3)
+##  Docker та CI/CD Pipeline
 
 ### Multi-Stage Dockerfile
 Образ створюється у два етапи на базі легковикового дистрибутива `node:22-alpine`:
@@ -167,7 +156,7 @@ docker compose up --build
 
 ---
 
-## 📊 Зведені таблиці вимірювань проєкту (Лаби 5, 7, 8)
+##  Зведені таблиці вимірювань проєкту (Лабораторні 5, 7, 8)
 
 ### 1. Мережевий протокол: Бінарний пакінг проти JSON (Лаба 5)
 | Параметр | JSON кодек | Бінарний кодек (Bit-Packed) | Різниця / Ефект |
@@ -201,7 +190,7 @@ docker compose up --build
 
 ---
 
-## 📱 Підтримка Progressive Web App (PWA)
+## Підтримка Progressive Web App (PWA)
 
 - Створено валідний веб-маніфест [`client/public/manifest.webmanifest`](client/public/manifest.webmanifest) з налаштуваннями standalone-відображення, альбомної орієнтації та іконками.
 - Впроваджено Service Worker [`client/public/sw.js`](client/public/sw.js), який кешує оболонку застосунку (HTML, CSS, шрифти, текстури, звуки) для миттєвого завантаження та не перехоплює динамічні WebSocket та метричні ендпоінти.
@@ -249,13 +238,3 @@ npm start
 - `lab-06` — Клієнтське передбачення (Prediction), звірка (Reconciliation) та інтерполяція сутностей.
 - `lab-07` — Профілювання V8, пули об'єктів (Object Pooling), повна ліквідація GC-пауз, Vitest та навантажувальний тест на 128 гравців.
 - **`lab-08` / `v1.0.0`** — Фінальний реліз: Docker multi-stage (< 142 MB), Graceful Shutdown (SIGTERM/1001), ендпоінти `/health` та `/ready`, логування Pino, метрики Prometheus (`/metrics`), Origin Check & IP limits, Chaos Engineering, PWA та публічна жива адреса.
-
----
-
-## 🎤 План 5-хвилинного захисту (Showcase)
-
-1. **Хвилина 1 (Жива гра):** відкриття гри у двох різних браузерних вікнах (або з телефону через PWA та ноутбука), спільний маневрений бій, показ роботи інтерполяції та чату, спавн 8 ботів.
-2. **Хвилина 2 (Діагностика та Netgraph):** увімкнення `N`-netgraph — демонстрація реального RTT, нульового часу реакції власного корабля завдяки клієнтському передбаченню, показу стабільного бінарного трафіку (~300 B/s).
-3. **Хвилина 3 (Операційна надійність):** демонстрація ендпоінтів `/health` (git SHA, uptime), `/ready` та Prometheus `/metrics` (активні сокети, ELU, гістограма часу тіка).
-4. **Хвилина 4 (Глибоке занурення — Deep Dive):** демонстрація роботи Graceful Shutdown (`docker stop` / `SIGTERM` з розсилкою 1001 клієнтам за < 1 с) та захисту від хаос-атаки 1000 битих кадрів без просідання FPS в інших кімнатах.
-5. **Хвилина 5 (Висновки та рефлексія):** підсумок пройденого шляху від 1-го кадру на `localhost` до продакшн-контейнера в інтернеті, що тримає понад 128 одночасних гравців на одному процесі Node.js.
