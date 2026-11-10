@@ -175,7 +175,7 @@ export class NetGame {
   }
 
   onKey(e: KeyboardEvent): void {
-    if (e.repeat) return;
+    if (e.repeat || document.activeElement?.tagName === 'INPUT') return;
     const k = e.key.toLowerCase();
     if (k === 'p') {
       this.predictor.enabled = !this.predictor.enabled;

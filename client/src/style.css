@@ -501,6 +501,104 @@ kbd {
   box-shadow: 0 2px 0 rgba(0, 0, 0, 0.4);
 }
 
+/* On-Screen Touch / Mobile Controls */
+#touch-controls {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  gap: 16px;
+  z-index: 22;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.touch-pad {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.touch-btn {
+  min-width: 64px;
+  height: 64px;
+  padding: 0 16px;
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.78);
+  border: 2px solid rgba(56, 189, 248, 0.45);
+  color: #f8fafc;
+  font-size: 20px;
+  font-weight: 800;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  transition: transform 0.08s, background 0.08s, border-color 0.08s;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.touch-btn-thrust {
+  font-size: 14px;
+  border-color: rgba(16, 185, 129, 0.55);
+  background: rgba(6, 78, 59, 0.65);
+}
+
+.touch-btn-fire {
+  font-size: 14px;
+  border-color: rgba(244, 63, 94, 0.65);
+  background: rgba(136, 19, 55, 0.65);
+}
+
+.touch-btn:active,
+.touch-btn.active {
+  transform: scale(0.92);
+  background: rgba(56, 189, 248, 0.45);
+  border-color: #38bdf8;
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.6);
+}
+
+.touch-btn-thrust:active,
+.touch-btn-thrust.active {
+  background: rgba(16, 185, 129, 0.55);
+  border-color: #34d399;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
+}
+
+.touch-btn-fire:active,
+.touch-btn-fire.active {
+  background: rgba(244, 63, 94, 0.65);
+  border-color: #fb7185;
+  box-shadow: 0 0 20px rgba(244, 63, 94, 0.65);
+}
+
+@media (max-width: 768px) {
+  #touch-controls {
+    left: 16px;
+    right: 16px;
+    bottom: 18px;
+    justify-content: space-between;
+  }
+
+  #chat-box {
+    bottom: 98px;
+    left: 12px;
+    width: 240px;
+  }
+
+  #chat-messages {
+    height: 64px;
+    font-size: 11px;
+    padding: 6px 8px;
+  }
+
+  .touch-btn {
+    min-width: 68px;
+    height: 68px;
+  }
+}
+
 @media (max-width: 520px) {
   .lobby-card {
     padding: 24px 18px;
