@@ -14,11 +14,11 @@
 
 ## 🎮 Демо та Жива Адреса
 
-- **Публічна адреса:** [https://dogfight-online.onrender.com](https://dogfight-online.onrender.com) *(або локально `http://localhost:3000`)*
-- **WebSocket адреса:** `wss://dogfight-online.onrender.com/ws` *(збереження з'єднання крізь проксі завдяки heartbeat)*
-- **Liveness probe:** [`/health`](https://dogfight-online.onrender.com/health) — повертає `{ status: "healthy", gitSha, uptime }`
-- **Readiness probe:** [`/ready`](https://dogfight-online.onrender.com/ready) — перевірка готовності приймати нові матчі
-- **Prometheus метрики:** [`/metrics`](https://dogfight-online.onrender.com/metrics) — статистика гравців, ELU, часу кроку та відхилень
+- **Публічна адреса:** [https://javascript-lab-08-production.up.railway.app](https://javascript-lab-08-production.up.railway.app) *(або локально `http://localhost:3000`)*
+- **WebSocket адреса:** `wss://javascript-lab-08-production.up.railway.app/ws` *(збереження з'єднання крізь проксі завдяки heartbeat)*
+- **Liveness probe:** [`/health`](https://javascript-lab-08-production.up.railway.app/health) — повертає `{ status: "healthy", gitSha, uptime }`
+- **Readiness probe:** [`/ready`](https://javascript-lab-08-production.up.railway.app/ready) — перевірка готовності приймати нові матчі
+- **Prometheus метрики:** [`/metrics`](https://javascript-lab-08-production.up.railway.app/metrics) — статистика гравців, ELU, часу кроку та відхилень
 
 ![Геймплей з 8 ботами](docs/gameplay-8-bots.png)
 
