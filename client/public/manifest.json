@@ -1,0 +1,9 @@
+{
+  "sprites": {
+    "ship": "/ship.png",
+    "asteroid": "/asteroid.png"
+  },
+  "sounds": {
+    "shoot": "/shoot.mp3"
+  }
+}

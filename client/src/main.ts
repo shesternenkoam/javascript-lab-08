@@ -1,5 +1,6 @@
 import './style.css';
 import { loadAll } from './assets/loader.ts';
+import manifestData from './assets/manifest.json';
 import { initAudio } from './audio.ts';
 import { Lobby } from './Lobby.ts';
 import { connection } from './connection.ts';
@@ -54,7 +55,7 @@ async function bootstrap(_roomData: { room: string; name: string }): Promise<voi
   try {
     drawLoadingScreen(0, 'Ініціалізація...');
 
-    const assets = await loadAll('/src/assets/manifest.json', {
+    const assets = await loadAll(manifestData, {
       signal: abortController.signal,
       audioCtx,
       onProgress: (ratio) => drawLoadingScreen(ratio, `Завантаження... ${Math.round(ratio * 100)}%`),

@@ -5,6 +5,5 @@
   },
   "sounds": {
     "shoot": "/shoot.mp3"
-  },
-  "config": "https://httpbin.org/delay/1"
+  }
 }

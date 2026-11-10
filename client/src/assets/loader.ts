@@ -111,7 +111,7 @@ export interface LoadedAssets {
 }
 
 export async function loadAll(
-  manifestUrl: string,
+  manifestOrUrl: Manifest | string,
   {
     onProgress,
     signal,
@@ -122,7 +122,10 @@ export async function loadAll(
     audioCtx?: AudioContext;
   } = {},
 ): Promise<LoadedAssets> {
-  const manifest = await withRetry(() => fetchJson<Manifest>(manifestUrl, { signal }), { signal });
+  const manifest =
+    typeof manifestOrUrl === 'string'
+      ? await withRetry(() => fetchJson<Manifest>(manifestOrUrl, { signal }), { signal })
+      : manifestOrUrl;
 
   const promises: Promise<unknown>[] = [];
   let done = 0;
