@@ -117,8 +117,8 @@ export function setupWebSocket(server: Server): WebSocketServer {
     const codec: 'json' | 'binary' = 'binary';
     const link = new LinkSim();
 
-    // Lab 4 rate limit: 40 max burst, 30 refill/sec
-    const rateLimiter = new TokenBucket(40, 30, Date.now());
+    // Rate limit: 120 burst, 80 refill/sec (allows 30-60 Hz inputs with network jitter/spikes without false disconnects)
+    const rateLimiter = new TokenBucket(120, 80, Date.now());
 
     // Join timeout (5 minutes for lobby browsing)
     const joinTimeout = setTimeout(() => {
