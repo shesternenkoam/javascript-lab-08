@@ -84,6 +84,33 @@ async function bootstrap(_roomData: { room: string; name: string }): Promise<voi
 }
 
 let activeRoom: string | null = null;
+let activePlayerName: string | null = null;
+
+const reconnectBanner = document.getElementById('reconnect-banner');
+const reconnectText = document.getElementById('reconnect-text');
+
+connection.onClose = (delay: number) => {
+  if (reconnectBanner) {
+    reconnectBanner.style.display = 'block';
+  }
+  if (reconnectText) {
+    reconnectText.textContent = `⚠️ Зв'язок із сервером втрачено. Повторне підключення через ${(delay / 1000).toFixed(0)}с...`;
+  }
+};
+
+connection.onOpen = () => {
+  if (reconnectBanner) {
+    reconnectBanner.style.display = 'none';
+  }
+  if (activeRoom && activePlayerName) {
+    console.log(`Reconnected! Rejoining room: ${activeRoom}`);
+    connection.send({
+      type: 'join',
+      room: activeRoom,
+      name: activePlayerName,
+    });
+  }
+};
 
 const addBotsBtn = document.getElementById('add-bots-btn') as HTMLButtonElement | null;
 addBotsBtn?.addEventListener('click', async () => {
@@ -123,6 +150,7 @@ function initLobby(): void {
   lobby.onJoin = (detail) => {
     const { room, name } = detail;
     activeRoom = room;
+    activePlayerName = name;
     console.log(`Гравець ${name} увійшов у кімнату ${room}`);
 
     if (uiContainer) {

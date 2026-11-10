@@ -1,0 +1,33 @@
+services:
+  game-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        GIT_SHA: v1.0.0
+    image: dogfight-game:latest
+    container_name: dogfight-server
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - HOST=0.0.0.0
+      - NODE_ENV=production
+      - ALLOWED_ORIGINS=*
+      - MAX_CONNECTIONS_PER_IP=10
+      - MAX_ROOMS=50
+      - MAX_PLAYERS_PER_ROOM=10
+      - LOG_LEVEL=info
+      - GIT_SHA=v1.0.0
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M

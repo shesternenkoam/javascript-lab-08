@@ -392,7 +392,9 @@ export class NetGame {
     );
     ctx.fillStyle = '#9e9e9e';
     ctx.font = '12px monospace';
-    ctx.fillText('W/A/D or arrows + Space | P predict  [ ] interp  B codec  1/2/3 network  N netgraph', 20, 48);
+    const sha = typeof __GIT_SHA__ !== 'undefined' ? __GIT_SHA__.slice(0, 7) : 'dev';
+    const ver = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'v1.0.0';
+    ctx.fillText(`Dogfight ${ver} (${sha}) | W/A/D or arrows + Space | P predict [ ] interp B codec N netgraph`, 20, 48);
 
     if (this.disconnected || stats.snapshotAge(now) > 2000) {
       ctx.fillStyle = '#ff5252';

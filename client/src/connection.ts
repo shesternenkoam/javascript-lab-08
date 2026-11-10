@@ -22,7 +22,8 @@ export class Connection {
   isConnected: boolean = false;
   private readonly sendQueue: (string | ArrayBuffer | Uint8Array)[] = [];
   private reconnectDelay: number = 1000;
-  onClose: (() => void) | null = null;
+  onOpen: (() => void) | null = null;
+  onClose: ((delay: number) => void) | null = null;
   onTraffic: ((dir: TrafficDirection, bytes: number) => void) | null = null;
 
   private onWelcomeHandler: ((msg: WelcomeMessage) => void) | null = null;
@@ -45,7 +46,9 @@ export class Connection {
     this.socket.onopen = (): void => {
       console.log('WS Connected');
       this.isConnected = true;
+      const wasReconnecting = this.reconnectDelay > 1000;
       this.reconnectDelay = 1000;
+      this.onOpen?.();
 
       while (this.sendQueue.length > 0) {
         const item = this.sendQueue.shift();
@@ -78,9 +81,10 @@ export class Connection {
 
     this.socket.onclose = (): void => {
       this.isConnected = false;
-      this.onClose?.();
-      console.log(`WS Closed. Reconnecting in ${this.reconnectDelay}ms...`);
-      setTimeout(() => this.connect(), this.reconnectDelay);
+      const delay = this.reconnectDelay;
+      this.onClose?.(delay);
+      console.log(`WS Closed. Reconnecting in ${delay}ms...`);
+      setTimeout(() => this.connect(), delay);
       this.reconnectDelay = Math.min(this.reconnectDelay * 2, 10000);
     };
   }

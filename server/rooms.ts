@@ -4,6 +4,8 @@ import type { EntityId, PlayerInput, Seq, World } from 'shared';
 import { createMatchLogStream, type MatchLogStream } from './log/matchlog.ts';
 import { Match } from './match.ts';
 import type { LinkSim } from './netsim.ts';
+import { config } from './config.ts';
+import { logger } from './logger.ts';
 
 export interface Player {
   id: EntityId;
@@ -50,17 +52,26 @@ class RoomManager {
   create(id: string): Room {
     const existing = this.rooms.get(id);
     if (existing) return existing;
+
+    if (this.rooms.size >= config.maxRooms) {
+      logger.warn({ roomId: id, currentRooms: this.rooms.size, maxRooms: config.maxRooms }, 'room.limit_reached');
+      throw new Error('Server room limit reached');
+    }
+
     const room = new Room(id);
     this.rooms.set(id, room);
 
+    logger.info({ roomId: id, activeRooms: this.rooms.size }, 'room.created');
     room.logger.write({ event: 'room_created', roomId: id });
 
     room.on('join', (player: Player) => {
+      logger.info({ roomId: id, playerId: player.id, name: player.name }, 'player.joined');
       room.logger.write({ event: 'player_joined', player: player.name });
     });
 
     room.once('empty', () => {
       room.match.stop();
+      logger.info({ roomId: id }, 'room.destroyed');
       room.logger.write({ event: 'room_empty_destroyed' });
       room.logger.close();
       this.rooms.delete(id);
@@ -71,6 +82,26 @@ class RoomManager {
 
   get(id: string): Room | undefined {
     return this.rooms.get(id);
+  }
+
+  roomCount(): number {
+    return this.rooms.size;
+  }
+
+  playerCount(): number {
+    let count = 0;
+    for (const room of this.rooms.values()) {
+      count += room.players.size;
+    }
+    return count;
+  }
+
+  closeAll(): void {
+    for (const [id, room] of this.rooms.entries()) {
+      room.match.stop();
+      room.logger.close();
+      this.rooms.delete(id);
+    }
   }
 
   stats(): Record<string, unknown>[] {

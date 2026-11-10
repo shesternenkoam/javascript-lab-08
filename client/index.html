@@ -3,7 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lab 7 - Space Arena</title>
+    <title>Dogfight Online - Space Arena</title>
+    <meta name="description" content="Multiplayer 2D space dogfight arena game" />
+    <meta name="theme-color" content="#0ea5e9" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" type="image/png" href="/ship.png" />
     <style>
       body { margin: 0; overflow: hidden; background-color: #111; font-family: monospace; }
       #hud { position: absolute; top: 10px; left: 10px; color: white; font-family: monospace; z-index: 10; }
@@ -14,9 +18,40 @@
       #chat-form { display: flex; }
       #chat-input { flex: 1; padding: 6px 8px; background: #222; border: 1px solid #555; color: white; border-radius: 3px; font-family: monospace; }
       #chat-send { margin-left: 4px; background: #3b82f6; color: white; border: none; padding: 6px 12px; cursor: pointer; border-radius: 3px; font-family: monospace; font-weight: bold; }
+      #reconnect-banner {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background: #dc2626;
+        color: white;
+        text-align: center;
+        padding: 8px;
+        font-size: 13px;
+        font-weight: bold;
+        z-index: 100;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+      }
+      #return-lobby-btn {
+        margin-left: 10px;
+        background: #fff;
+        color: #dc2626;
+        border: none;
+        padding: 3px 8px;
+        border-radius: 3px;
+        cursor: pointer;
+        font-family: monospace;
+        font-weight: bold;
+      }
     </style>
   </head>
   <body>
+    <div id="reconnect-banner">
+      <span id="reconnect-text">⚠️ Зв'язок із сервером втрачено. Повторне підключення...</span>
+      <button id="return-lobby-btn" onclick="window.location.href='/'">В лобі</button>
+    </div>
+
     <canvas id="gameCanvas"></canvas>
     
     <div id="hud"></div>
@@ -38,5 +73,12 @@
     </div>
 
     <script type="module" src="/src/main.ts"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+      }
+    </script>
   </body>
 </html>

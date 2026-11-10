@@ -6,6 +6,7 @@ import {
 } from 'shared';
 import type { Room, Player } from './rooms.ts';
 import { Bot } from './bot.ts';
+import { tickDurationHistogram } from './metrics.ts';
 
 const OVERRUN_RESYNC_TICKS = 5;
 
@@ -125,6 +126,7 @@ export class Match {
     this.broadcast();
 
     const took = performance.now() - started;
+    tickDurationHistogram.observe(took);
     s.ticks++;
     s.tickMsAvg += (took - s.tickMsAvg) * 0.05;
     s.tickMsMax = Math.max(s.tickMsMax, took);
